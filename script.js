@@ -1,7 +1,7 @@
 import { config } from 'dotenv'
-config()
 import { OpenAI } from 'openai'
 
+config()
 const openai = new OpenAI( { apiKey: process.env.API_KEY } );
 
 openai.chat.completions.create({ 
