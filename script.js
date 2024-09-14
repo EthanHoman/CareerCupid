@@ -1,4 +1,4 @@
-/*import { config } from 'dotenv'
+import { config } from 'dotenv'
 import { OpenAI } from 'openai'
 
 config()
@@ -10,12 +10,18 @@ openai.chat.completions.create({
         { role: "user", content: "Hello ChatGPT" }
     ]
 }).then(res => {
+    console.log(res)
     res.choices.forEach( out => console.log(out.message.content) );
-});*/
+});
 
 
 
-const form = document.getElementById('chatForm');
+
+
+
+
+
+/*const form = document.getElementById('chatForm');
 const chatBox = document.getElementById('chatBox');
 
 form.addEventListener('submit', async (e) => {
@@ -45,5 +51,5 @@ form.addEventListener('submit', async (e) => {
 
   // Clear input
   document.getElementById('userInput').value = '';
-});
+});*/
 
