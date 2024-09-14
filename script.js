@@ -10,6 +10,5 @@ openai.chat.completions.create({
         { role: "user", content: "Hello ChatGPT" }
     ]
 }).then(res => {
-    console.log(res)
-    res.choices.forEach( out => console.log(out.message) );
+    res.choices.forEach( out => console.log(out.message.content) );
 });
