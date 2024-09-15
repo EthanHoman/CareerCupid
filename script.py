@@ -8,6 +8,26 @@ from scipy.io.wavfile import write
 import numpy as np
 import keyboard, threading
 
+# def start_recording():
+#     print("Recording started. Start speaking.")
+#     recording = sounddevice.rec(int(10 * fs), samplerate=fs, channels=1)  # Max duration of 60 seconds
+#     sounddevice.wait()  # This blocks the function until the recording is complete
+#     return recording
+
+# def stop_recording(filename, recording):
+#     print("Recording stopped.")
+    
+#     # Save the recording as a .wav file
+#     write(filename, fs, recording[:len(np.nonzero(recording)[0])])  # Stop at the last non-zero sample
+#     print(f"Audio recording saved as {filename}")
+
+# def monitor_keys():
+#     while True:
+#         recording = start_recording()
+#         if keyboard.is_pressed('s'):
+#             stop_recording("output.wav", recording)
+#             break  # Exit the loop after stopping the recording
+
 # Ignore DeprecationWarning
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -17,8 +37,8 @@ CHUNK = 1024
 file_path = 'output.mp3'
 p = pyaudio.PyAudio()
 
-recording = []
-fs = 44100
+# recording = []
+# fs = 44100
 
 TCLAI = client.beta.assistants.create(
     name="Tee",
@@ -103,7 +123,6 @@ while(sentence != "exit"):
             thread_id=thread.id
         )
         currMessage = messages.data[0].content[0].text.value
-        print(currMessage)
     else:
         print(run.status)
 
@@ -133,6 +152,8 @@ while(sentence != "exit"):
                     channels=channels,
                     rate=frame_rate,
                     output=True)
+    
+    print(currMessage)
 
     with io.BytesIO(raw_data) as f:
         data = f.read(CHUNK)
@@ -143,11 +164,16 @@ while(sentence != "exit"):
     stream.stop_stream()
     stream.close()
 
-    print("Recording started. Press 's' to stop. Max duration of 60s.")
-    recording = sounddevice.rec(int(60 * fs), samplerate=fs, channels=1)
-    sounddevice.wait()
+    # print("Press 'r' to start recording and 's' to stop.")
+    # monitor_keys()
 
-    print(currMessage)
+    # audio_file = open("output.wav", "rb")
+    # transcription = client.audio.transcriptions.create(
+    #   model="whisper-1", 
+    #   file=audio_file
+    # )
+    # print(transcription.text)
+    # sentence = transcription.text
 
-    # sentence = input("Put response: ")
+    sentence = input("Enter response: ")
 p.terminate()
