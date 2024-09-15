@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Interface</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<h1>Welcome to Career Cupid Chatbot</h1>
+
+<form id="chat-form">
+    <label for="company">Choose a company:</label>
+    <select name="company" id="company">
+        <option value="TCL">TCL</option>
+        <option value="PAT">PAT</option>
+        <option value="MLH">MLH</option>
+    </select>
+
+    <label for="user_input">Type your message:</label>
+    <input type="text" id="user_input" name="user_input" required>
+
+    <button type="submit">Send</button>
+</form>
+
+<div id="chat-response">
+    <!-- Chatbot response will appear here -->
+</div>
+
+<script>
+    $(document).ready(function(){
+        $('#chat-form').submit(function(event){
+            event.preventDefault(); // Prevent default form submission
+
+            let formData = {
+                'user_input': $('#user_input').val(),
+                'company': $('#company').val()
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '/chat',
+                data: formData,
+                dataType: 'json',
+                encode: true
+            })
+            .done(function(data) {
+                $('#chat-response').html('<p>' + data.response + '</p>');
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

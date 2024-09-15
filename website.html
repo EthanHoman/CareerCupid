@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Website with Human Figure Animation</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="mainstyle.css">
+    
 </head>
 <body>
+
     <header>
         <h1>Welcome to Career Cupid</h1>
         <nav>
@@ -19,20 +21,40 @@
         </nav>
     </header>
 
-    <section>
+    
+
+    <section class="introduction">
         <h2>Find your perfect match!</h2>
         <p>We are very excited to be a part of your journey</p>
     </section>
 
+    <section class="container">
     <!-- Animated Human Figure -->
-    <div class="company-heads">
-        <img src="images/TCLfinal.png" class="image">
-         <button class="btn">TCL</button> 
-        <img src="images/MLHfinal.png" class="image">
-        <button class="btn">MLH</button> 
-        <img src="images/UTIfinal.png" class="image">
-         <button class="btn">UTI</button> 
-    </div>
+    
+    
+
+            <div class="company-heads">
+                <div id="particles-js">
+                    <script class="snowy">
+                        particlesJS.load('particles-js', 'particlesjs-config.json', function(){
+                          console.log('particles.json loaded...');
+                        });
+                    </script>
+                </div>
+
+                <a href="tclRoom.html">
+            <img src="images/TCLfinal.png" class="image">
+                </a>
+
+            <a href="mlhRoom.html">
+            <img src="images/MLHfinal.png" class="image">
+            </a>
+            
+            <a href="patRoom.html">
+            <img src="images/UTIfinal.png" class="image">
+            </a>
+            </div>
+    </section>
 
 
  <!--   <section id="chatbot">

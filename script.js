@@ -1,55 +1,32 @@
-import { config } from 'dotenv'
-import { OpenAI } from 'openai'
+import { GUI } from 'https://cdn.skypack.dev/dat.gui'
 
-config()
-const openai = new OpenAI( { apiKey: process.env.API_KEY } );
+const CONFIG = {
+  gradient: true,
+  animated: true,
+  highlight: 2,
+  spread: 1,
+  primary: '#ffffff',
+  secondary: '#606060',
+}
 
-openai.chat.completions.create({ 
-    model: "gpt-4o",
-    messages: [
-        { role: "user", content: "Hello ChatGPT" }
-    ]
-}).then(res => {
-    console.log(res)
-    res.choices.forEach( out => console.log(out.message.content) );
-});
+const CTRL = new GUI()
 
+const UPDATE = () => {
+  for (const key of Object.keys(CONFIG)) {
+    document.documentElement.style.setProperty(`--${key}`, CONFIG[key])
+  }
+  document.documentElement.setAttribute('data-gradient', CONFIG.gradient)
+  document.documentElement.setAttribute('data-animate', CONFIG.animated)
+}
 
+const HIGHLIGHT_ONE = CTRL.addFolder('Highlight One')
+HIGHLIGHT_ONE.add(CONFIG, 'highlight', 0, 5, 1).name('Spread').onChange(UPDATE)
+HIGHLIGHT_ONE.addColor(CONFIG, 'primary').name('Color').onChange(UPDATE)
+HIGHLIGHT_ONE.add(CONFIG, 'gradient').name('Use gradient?').onChange(UPDATE)
+HIGHLIGHT_ONE.add(CONFIG, 'animated').name('Animate gradient?').onChange(UPDATE)
 
+const HIGHLIGHT_TWO = CTRL.addFolder('Highlight Two')
+HIGHLIGHT_TWO.add(CONFIG, 'spread', 0, 5, 1).name('Spread').onChange(UPDATE)
+HIGHLIGHT_TWO.addColor(CONFIG, 'secondary').name('Color').onChange(UPDATE)
 
-
-
-
-
-/*const form = document.getElementById('chatForm');
-const chatBox = document.getElementById('chatBox');
-
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const userInput = document.getElementById('userInput').value;
-
-  // Display user's message
-  const userMessage = document.createElement('p');
-  userMessage.textContent = `User: ${userInput}`;
-  chatBox.appendChild(userMessage);
-
-  // Send message to the back-end
-  const response = await fetch('http://localhost:3000/chat', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ message: userInput }),
-  });
-
-  const data = await response.json();
-
-  // Display AI's response
-  const aiMessage = document.createElement('p');
-  aiMessage.textContent = `AI: ${data.reply}`;
-  chatBox.appendChild(aiMessage);
-
-  // Clear input
-  document.getElementById('userInput').value = '';
-});*/
-
+UPDATE()
