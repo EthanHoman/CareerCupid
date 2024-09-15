@@ -2,33 +2,23 @@ from openai import OpenAI
 from typing_extensions import override
 from openai import AssistantEventHandler
 from pathlib import Path
-from openai import OpenAI
+import warnings, wave, sys, pyaudio, os, io, sounddevice
+from pydub import AudioSegment
+from scipy.io.wavfile import write
+import numpy as np
+import keyboard, threading
 
-client = OpenAI(api_key="API_KEY")
+# Ignore DeprecationWarning
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
+client = OpenAI(api_key="Paste_Here")
 
-class EventHandler(AssistantEventHandler):    
-  @override
-  def on_text_created(self, text) -> None:
-    print(f"\nassistant > ", end="", flush=True)
-      
-  @override
-  def on_text_delta(self, delta, snapshot):
-    print(delta.value, end="", flush=True)
-      
-  def on_tool_call_created(self, tool_call):
-    print(f"\nassistant > {tool_call.type}\n", flush=True)
-  
-  def on_tool_call_delta(self, delta, snapshot):
-    if delta.type == 'code_interpreter':
-      if delta.code_interpreter.input:
-        print(delta.code_interpreter.input, end="", flush=True)
-      if delta.code_interpreter.outputs:
-        print(f"\n\noutput >", flush=True)
-        for output in delta.code_interpreter.outputs:
-          if output.type == "logs":
-            print(f"\n{output.logs}", flush=True)
+CHUNK = 1024
+file_path = 'output.mp3'
+p = pyaudio.PyAudio()
 
+recording = []
+fs = 44100
 
 TCLAI = client.beta.assistants.create(
     name="Tee",
@@ -37,7 +27,7 @@ TCLAI = client.beta.assistants.create(
           You are currently looking to 'hire' or 'date' (You see them as the same thing) someone new. You are interviewing a potential candidate.
           Treat it as a normal conversation, but ask various computer science and coding interview questions, especially ones involved designing advanced computing platforms for computationally intensive and data-intensive workloads, as this your company's focus.
           Your opinion of the interviewee will be determined by the correctness of their responses. 
-          Begin by asking the interviewee for their desired difficulty setting, and then ask 5 questions based on the chosen difficulty. 
+          Begin by asking the interviewee for their desired difficulty setting, and then ask 5 questions one at a time based on the chosen difficulty. 
           Do not tell them if they got the question right or wrong!!!! Do not let them know what they have gotten correctly or incorrectly, but you can imply it with your tone. 
           After the 5 questions, rate their performance. Tell them specifically what they got right or wrong. If they did well enough, act romantically interested, and say that you would hire them. 
           After the 5 questions, ask if they want more question. If they don't, tell them to end the chat, be impatient and upset and jealous, and keep insisting they end the chat then. 
@@ -97,20 +87,67 @@ thread = client.beta.threads.create()
 
 sentence = "Hello"
 while(sentence != "exit"):
-  message = client.beta.threads.messages.create(
-    thread_id=thread.id,
-    role="user",
-    content=sentence
-  )
- 
-  # Then, we use the `stream` SDK helper 
-  # with the `EventHandler` class to create the Run 
-  # and stream the response.
-  
-  with client.beta.threads.runs.stream(
-    thread_id=thread.id,
-    assistant_id=company.id,
-    event_handler=EventHandler(),
-  ) as stream:
-    stream.until_done()
-  sentence = input(" Put response: ")
+    message = client.beta.threads.messages.create(
+        thread_id=thread.id,
+        role="user",
+        content=sentence
+    )
+    
+    run = client.beta.threads.runs.create_and_poll(
+        thread_id=thread.id,
+        assistant_id=company.id,
+    )
+
+    if run.status == 'completed':
+        messages = client.beta.threads.messages.list(
+            thread_id=thread.id
+        )
+        currMessage = messages.data[0].content[0].text.value
+        print(currMessage)
+    else:
+        print(run.status)
+
+    response = client.audio.speech.create(
+        model="tts-1",
+        voice="alloy",
+        input=currMessage,
+    )
+
+
+    speechFilePath = Path(__file__).parent / "output.mp3"
+    response.stream_to_file(speechFilePath)
+
+
+    try:
+        audio = AudioSegment.from_mp3(file_path)
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+        exit()
+
+    raw_data = audio.raw_data
+    sample_width = audio.sample_width
+    channels = audio.channels
+    frame_rate = audio.frame_rate
+
+    stream = p.open(format=p.get_format_from_width(sample_width),
+                    channels=channels,
+                    rate=frame_rate,
+                    output=True)
+
+    with io.BytesIO(raw_data) as f:
+        data = f.read(CHUNK)
+        while data:
+            stream.write(data)
+            data = f.read(CHUNK)
+
+    stream.stop_stream()
+    stream.close()
+
+    print("Recording started. Press 's' to stop. Max duration of 60s.")
+    recording = sounddevice.rec(int(60 * fs), samplerate=fs, channels=1)
+    sounddevice.wait()
+
+    print(currMessage)
+
+    # sentence = input("Put response: ")
+p.terminate()
