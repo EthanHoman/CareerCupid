@@ -1,8 +1,12 @@
 from openai import OpenAI
 from typing_extensions import override
 from openai import AssistantEventHandler
+from pathlib import Path
+from openai import OpenAI
 
 client = OpenAI(api_key="Paste_Here")
+
+
 
 class EventHandler(AssistantEventHandler):    
   @override
@@ -82,14 +86,13 @@ MLHAI = client.beta.assistants.create(
 )
 
 comChoice = input("Choose the company. 1: TCL, 2: PAT, 3: MLH ")
-if comChoice == 1:
-  company = "TCLAI"
-if comChoice == 2:
-  company = "PATAI"
-if comChoice == 3:
-  company = "MLHAI"
+if comChoice == "1":
+  company = TCLAI
+if comChoice == "2":
+  company = PATAI
+if comChoice == "3":
+  company = MLHAI
 
-print(company)
 thread = client.beta.threads.create()
 
 sentence = "Hello"
